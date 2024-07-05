@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Login Form</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <style>
+    /* Reset some default browser styles */
+    body,
+    h2,
+    input,
+    button,
+    a {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .login-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .login-header .logo {
+      width: 100px; /* Adjust as needed */
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-form h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-group .forgot-password {
+      display: block;
+      margin-top: 10px;
+      text-align: right;
+      color: #007bff;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+
+    .form-group .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .login-container {
+        padding: 15px;
+      }
+
+      .login-header .logo {
+        width: 80px; /* Adjust as needed for smaller screens */
+      }
+
+      .login-form h2 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <img src="images/image.png" alt="Logo" class="logo" />
+        <h2>Admin</h2>
+      </div>
+
+      <form class="login-form" action="/login" method="post">
+        <div class="form-group">
+          <label for="email">Username</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+          <a href="#" class="forgot-password">Forgot Password?</a>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <div id="flashMessage" class="flash-message"></div>
+    </div>
+  </body>
+</html>
