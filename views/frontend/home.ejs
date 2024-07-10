@@ -32,6 +32,17 @@
       integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
       crossorigin="anonymous"
     />
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="css/swiper-bundle.min.css" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Boxicons CSS -->
+    <link
+      href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css"
+      rel="stylesheet"
+    />
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="lib/ionicons/css/ionicons.min.css" rel="stylesheet" />
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
@@ -239,48 +250,18 @@
               in securing a better livelihood.
             </p>
           </div>
-
+          <% projects.forEach(project => { %>
           <div class="col-lg-4 col-sm-6">
             <div class="item">
               <span class="icon feature_box_col_four"
                 ><i class="fa fa-database"></i
               ></span>
-              <h6>Project-1</h6>
+              <h6><%= project.name %></h6>
 
-              <p>
-                “I don't know what your destiny will be, but one thing I do
-                know: the only ones among you who will be really happy are those
-                who have sought and found how to serve.”<br /><br /><br />
-              </p>
+              <p>"<%= project.description %>"<br /><br /><br /></p>
             </div>
           </div>
-
-          <div class="col-lg-4 col-sm-6">
-            <div class="item">
-              <span class="icon feature_box_col_five"
-                ><i class="fa fa-upload"></i
-              ></span>
-              <h6>Project-2</h6>
-              <p>
-                “I don't know what your destiny will be, but one thing I do
-                know: the only ones among you who will be really happy are those
-                who have sought and found how to serve.”<br /><br /><br />
-              </p>
-            </div>
-          </div>
-          <div class="col-lg-4 col-sm-6">
-            <div class="item">
-              <span class="icon feature_box_col_six"
-                ><i class="fa fa-camera"></i
-              ></span>
-              <h6>Project-3</h6>
-              <p>
-                “I don't know what your destiny will be, but one thing I do
-                know: the only ones among you who will be really happy are those
-                who have sought and found how to serve.”<br /><br /><br />
-              </p>
-            </div>
-          </div>
+          <% }) %>
         </div>
       </div>
     </div>
@@ -299,56 +280,20 @@
         </div>
 
         <div class="owl-carousel testimonials-carousel">
+          <% testimonials.forEach(testimonial => { %>
           <div class="testimonial-item row align-items-center">
             <div class="testimonial-img">
-              <img src="./images/testimonial-1.jpg" alt="Testimonial image" />
+              <img
+                src="./uploads/<%= testimonial.logo[0] %>"
+                alt="Testimonial image"
+              />
             </div>
             <div class="testimonial-text">
-              <h3>Person-1</h3>
-              <h4>Designation</h4>
-              <p>Testimonial</p>
+              <h3><%= testimonial.name %></h3>
+              <p>"<%= testimonial.review %>"</p>
             </div>
           </div>
-          <div class="testimonial-item row align-items-center">
-            <div class="testimonial-img">
-              <img src="./images/testimonial-2.jpg" alt="Testimonial image" />
-            </div>
-            <div class="testimonial-text">
-              <h3>Person-2</h3>
-              <h4>Designation</h4>
-              <p>Testimonial</p>
-            </div>
-          </div>
-          <div class="testimonial-item row align-items-center">
-            <div class="testimonial-img">
-              <img src="./images/testimonial-3.jpg" alt="Testimonial image" />
-            </div>
-            <div class="testimonial-text">
-              <h3>Person-3</h3>
-              <h4>Designation</h4>
-              <p>Testimonial</p>
-            </div>
-          </div>
-          <div class="testimonial-item row align-items-center">
-            <div class="testimonial-img">
-              <img src="./images/testimonial-4.jpg" alt="Testimonial image" />
-            </div>
-            <div class="testimonial-text">
-              <h3>Person-4</h3>
-              <h4>Designation</h4>
-              <p>Testimonial</p>
-            </div>
-          </div>
-          <div class="testimonial-item row align-items-center">
-            <div class="testimonial-img">
-              <img src="./images/testimonial-5.jpg" alt="Testimonial image" />
-            </div>
-            <div class="testimonial-text">
-              <h3>Person-5</h3>
-              <h4>Designation</h4>
-              <p>Testimonial</p>
-            </div>
-          </div>
+          <% }) %>
         </div>
       </div>
     </div>
@@ -360,14 +305,13 @@
           <p>We don't just build softwares, we build your business.</p>
         </div>
         <div class="owl-carousel clients-carousel">
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
-          <img src="./images/image.png" alt="Client Logo" />
+          <% clients.forEach(client => { %>
+          <img
+            src="./uploads/<%= client.logo[0] %>"
+            alt="<%= client.name %>"
+            width="150px"
+          />
+          <% }) %>
         </div>
       </div>
     </div>
@@ -384,86 +328,26 @@
     <section class="team" style="margin-top: 7rem">
       <h1 class="heading" style="margin-top: -1.5rem" id="team">our team</h1>
       <p></p>
+      <% teams.forEach((team,index) => { %>
+
       <div class="row">
         <div class="card">
           <div class="image">
-            <img
-              src="./images/pexels-andrea-piacquadio-845434.jpg"
-              alt="Team member 1"
-            />
+            <img src="/uploads/<%= team.pictures[0] %>" alt="Team member 1" />
           </div>
           <div class="info">
-            <h3>Bikram parki</h3>
-            <span>Web Developer</span>
+            <h3><%= team.name %></h3>
+            <span><%= team.role %></span>
             <div class="icons">
-              <a href="https://www.facebook.com/" class="fab fa-facebook-f"></a>
-              <a href="https://twitter.com/login" class="fab fa-twitter"></a>
-              <a href="https://www.instagram.com/" class="fab fa-instagram"></a>
-              <a href="https://www.linkedin.com/" class="fab fa-linkedin"></a>
+              <a href="<%= team.fbLink %>" class="fab fa-facebook-f"></a>
+              <a href="<%= team.xLink %>" class="fab fa-twitter"></a>
+              <a href="<%= team.instaLink %>" class="fab fa-instagram"></a>
+              <a href="<%= team.linkedinLink %>" class="fab fa-linkedin"></a>
             </div>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="card">
-          <div class="image">
-            <img
-              src="./images/pexels-vinicius-wiesehofer-1130624.jpg"
-              alt="Team member 1"
-            />
-          </div>
-          <div class="info">
-            <h3>Pratiksha Thapa</h3>
-            <span>Mobile Developer</span>
-            <div class="icons">
-              <a href="https://www.facebook.com/" class="fab fa-facebook-f"></a>
-              <a href="https://twitter.com/login" class="fab fa-twitter"></a>
-              <a href="https://www.instagram.com/" class="fab fa-instagram"></a>
-              <a href="https://www.linkedin.com/" class="fab fa-linkedin"></a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="card">
-          <div class="image">
-            <img
-              src="./images/pexels-hussein-altameemi-2776353.jpg"
-              alt="Team member 1"
-            />
-          </div>
-          <div class="info">
-            <h3>Sandesh Joshi</h3>
-            <span>Graphic Designer</span>
-            <div class="icons">
-              <a href="https://www.facebook.com/" class="fab fa-facebook-f"></a>
-              <a href="https://twitter.com/login" class="fab fa-twitter"></a>
-              <a href="https://www.instagram.com/" class="fab fa-instagram"></a>
-              <a href="https://www.linkedin.com/" class="fab fa-linkedin"></a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="card">
-          <div class="image">
-            <img
-              src="./images/pexels-andrea-piacquadio-745136.jpg"
-              alt="Team member 1"
-            />
-          </div>
-          <div class="info">
-            <h3>Kamala joshi</h3>
-            <span>Web Designer</span>
-            <div class="icons">
-              <a href="https://www.facebook.com/" class="fab fa-facebook-f"></a>
-              <a href="https://twitter.com/login" class="fab fa-twitter"></a>
-              <a href="https://www.instagram.com/" class="fab fa-instagram"></a>
-              <a href="https://www.linkedin.com/" class="fab fa-linkedin"></a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <% }) %>
     </section>
 
     <section id="contact" class="contact">
