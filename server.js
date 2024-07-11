@@ -10,7 +10,7 @@ const partials = require("express-partials");
 const cors = require("cors");
 const session = require("express-session");
 const flash = require("connect-flash");
-const port = 3000;
+const cookieParser = require("cookie-parser");
 const path = require("path");
 const contactModel = require("./models/contact.model");
 const User = require("./models/user.model");
@@ -19,7 +19,11 @@ const Client = require("./models/clients.model");
 const db = require("./connection");
 const Testimonial = require("./models/testimonials.model");
 const Project = require("./models/projects.model");
+// const settingsRoute = require("./routes/settings");
 
+const port = 3000;
+
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors());
 app.use(
@@ -30,6 +34,7 @@ app.use(
   })
 );
 app.use(flash());
+
 app.set("view engine", "ejs");
 app.use(partials());
 app.use(express.json());
@@ -48,29 +53,82 @@ const storage = multer.diskStorage({
 
 // Initialize upload
 const upload = multer({ storage: storage });
-// const upload = multer({
-//   storage: storage,
-//   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-//   fileFilter: function (req, file, cb) {
-//     checkFileType(file, cb);
-//   },
-// }).array("pictures", 10); // Maximum 10 files
 
-// Check file type
-// function checkFileType(file, cb) {
-//   // Allowed extensions
-//   const filetypes = /jpeg|jpg|png|gif/;
-//   // Check extension
-//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//   // Check mime type
-//   const mimetype = filetypes.test(file.mimetype);
+app.get("/admin", (req, res) => {
+  res.render("admin/auth/login");
+});
 
-//   if (mimetype && extname) {
-//     return cb(null, true);
-//   } else {
-//     cb("Error: Images Only!");
-//   }
-// }
+// Seed data
+async function seedUser() {
+  const user = await User.findOne({ email: "admin@redmugitsolutions.com" });
+  if (!user) {
+    const hashedPassword = await bcrypt.hash("password", 10);
+    await User.create({
+      name: "Admin",
+      email: "admin@redmugitsolutions.com",
+      password: hashedPassword,
+    });
+  }
+}
+seedUser();
+
+// Login route
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid email or password" });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    return res.status(400).json({ message: "Invalid email or password" });
+  }
+
+  const token = jwt.sign({ userId: user._id }, "your_jwt_secret", {
+    expiresIn: "1h",
+  });
+  res.cookie("token", token, { httpOnly: true });
+  res.redirect("/dashboard");
+  // res.json({ message: "Logged in successfully" });
+});
+
+// Logout route
+// Logout route
+app.get("/logout", (req, res) => {
+  res.clearCookie("token", { path: "/" });
+  // res.json({ message: "Logged out successfully" });
+  res.redirect("/admin");
+});
+
+// Middleware to check authentication
+function authMiddleware(req, res, next) {
+  const token = req.cookies.token;
+  if (!token) {
+    // return res.sendStatus(401);
+    return res.redirect("/admin");
+  }
+
+  jwt.verify(token, "your_jwt_secret", (err, user) => {
+    if (err) {
+      // return res.sendStatus(403);
+      return res.redirect("/admin");
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// app.use("/update-settings", settingsRoute);
+app.post("/update-settings", upload.single("photo"), async (req, res) => {
+  let user = await User.findOne({ email: req.user.email });
+  // user.photo = req.file.filename;
+  // user.save();
+  console.log(user);
+  res.redirect("/settings", { user });
+});
 
 app.get("/", async (req, res) => {
   let teams = await Team.find();
@@ -90,154 +148,126 @@ app.post("/create", async (req, res) => {
   });
   res.redirect("/");
 });
-app.get("/dashboard", (req, res) => {
+
+app.get("/dashboard", authMiddleware, (req, res) => {
   res.render("admin/dashboard");
 });
-app.get("/teams", async (req, res) => {
+
+app.get("/teams", authMiddleware, async (req, res) => {
   let teams = await Team.find();
   res.render("admin/managedTeams", { teams });
 });
-app.get("/add-teams", (req, res) => {
+
+app.get("/add-teams", authMiddleware, (req, res) => {
   res.render("admin/teams");
 });
-app.post("/teams/add", upload.single("file"), async (req, res) => {
-  // Create new form document
-  const newTeam = new Team({
-    name: req.body.name,
-    email: req.body.email,
-    role: req.body.role,
-    fbLink: req.body.fb_link,
-    instaLink: req.body.insta_link,
-    xLink: req.body.x_link,
-    linkedinLink: req.body.linkedin,
-    pictures: req.file.filename,
-  });
 
-  // Save document
-  await newTeam.save();
-  res.redirect("/teams");
-});
-app.get("/add-clients", (req, res) => {
+app.post(
+  "/teams/add",
+  authMiddleware,
+  upload.single("file"),
+  async (req, res) => {
+    const newTeam = new Team({
+      name: req.body.name,
+      email: req.body.email,
+      role: req.body.role,
+      fbLink: req.body.fb_link,
+      instaLink: req.body.insta_link,
+      xLink: req.body.x_link,
+      linkedinLink: req.body.linkedin,
+      pictures: req.file.filename,
+    });
+
+    await newTeam.save();
+    res.redirect("/teams");
+  }
+);
+
+app.get("/add-clients", authMiddleware, (req, res) => {
   res.render("admin/add-clients");
 });
-app.get("/clients", async (req, res) => {
+
+app.get("/clients", authMiddleware, async (req, res) => {
   let clients = await Client.find();
   res.render("admin/clients", { clients });
 });
 
-app.post("/clients/add", upload.single("logo"), async (req, res) => {
-  // Create new form document
-  const client = new Client({
-    name: req.body.name,
-    logo: req.file.filename,
-  });
+app.post(
+  "/clients/add",
+  authMiddleware,
+  upload.single("logo"),
+  async (req, res) => {
+    const client = new Client({
+      name: req.body.name,
+      logo: req.file.filename,
+    });
 
-  // Save document
-  await client.save();
-  res.redirect("/clients");
-});
-app.get("/projects/add", (req, res) => {
+    await client.save();
+    res.redirect("/clients");
+  }
+);
+
+app.get("/projects/add", authMiddleware, (req, res) => {
   res.render("admin/addProject");
 });
-app.get("/contacts", async (req, res) => {
+
+app.get("/contacts", authMiddleware, async (req, res) => {
   let contacts = await contactModel.find();
   res.render("admin/contacts", { contacts });
 });
-app.get("/admin", (req, res) => {
-  res.render("admin/auth/login");
+
+app.get("/testimonials", authMiddleware, async (req, res) => {
+  let testimonials = await Testimonial.find();
+  res.render("admin/testimonials", { testimonials });
 });
-app.get("/testimonials", (req, res) => {
-  res.render("admin/testimonials");
-});
-app.get("/add-testimonials", (req, res) => {
+
+app.get("/add-testimonials", authMiddleware, (req, res) => {
   res.render("admin/add-testimonials");
 });
-app.post("/testimonials/add", upload.single("picture"), async (req, res) => {
-  // Create new form document
-  const testimonial = new Testimonial({
-    name: req.body.name,
-    review: req.body.review,
-    logo: req.file.filename,
-  });
-  // Save document
-  await testimonial.save();
-  res.redirect("/testimonials");
-});
-app.get("/projects", async (req, res) => {
+
+app.post(
+  "/testimonials/add",
+  authMiddleware,
+  upload.single("picture"),
+  async (req, res) => {
+    const testimonial = new Testimonial({
+      name: req.body.name,
+      review: req.body.review,
+      logo: req.file.filename,
+    });
+
+    await testimonial.save();
+    res.redirect("/testimonials");
+  }
+);
+
+app.get("/projects", authMiddleware, async (req, res) => {
   let projects = await Project.find();
   res.render("admin/projects", { projects });
 });
-app.get("/add-projects", (req, res) => {
+
+app.get("/add-projects", authMiddleware, (req, res) => {
   res.render("admin/add-projects");
 });
-app.post("/projects/add", upload.single("picture"), async (req, res) => {
-  // Create new form document
-  const project = new Project({
-    name: req.body.name,
-    description: req.body.description,
-    picture: req.file.filename,
-  });
-  // Save document
-  await project.save();
-  res.redirect("/projects");
-});
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
 
-  try {
-    // Check if the user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      req.flash("error", "User does not exist");
-      return res.redirect("/login");
-    }
-
-    // Check if the password is correct
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      req.flash("error", "Invalid credentials");
-      return res.redirect("/admin");
-    }
-
-    // Create JWT payload
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    // Sign the token
-    jwt.sign(payload, "secret", { expiresIn: "1h" }, (err, token) => {
-      if (err) {
-        console.error("JWT signing error:", err);
-        req.flash("error", "Server error");
-        return res.redirect("/login");
-      }
-
-      req.flash("success", "Login successful");
-      res.redirect("/dashboard");
+app.post(
+  "/projects/add",
+  authMiddleware,
+  upload.single("picture"),
+  async (req, res) => {
+    const project = new Project({
+      name: req.body.name,
+      description: req.body.description,
+      picture: req.file.filename,
     });
-  } catch (err) {
-    console.error("Server error:", err);
-    req.flash("error", "Server error");
-    res.redirect("/login");
+
+    await project.save();
+    res.redirect("/projects");
   }
+);
+app.get("/settings", (req, res) => {
+  res.render("admin/settings");
 });
-
-// Logout route
-app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Failed to destroy session during logout:", err);
-      req.flash("error", "Failed to logout");
-      return res.redirect("/dashboard");
-    }
-    res.clearCookie("connect.sid"); // Clear the session cookie
-    req.flash("success", "Logged out successfully");
-    res.redirect("/admin");
-  });
-});
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

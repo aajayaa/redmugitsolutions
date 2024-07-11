@@ -56,6 +56,9 @@
                       <h6 class="fw-semibold mb-0">Client Name</h6>
                     </th>
                     <th class="border-bottom-0">
+                      <h6 class="fw-semibold mb-0">Client Review</h6>
+                    </th>
+                    <th class="border-bottom-0">
                       <h6 class="fw-semibold mb-0">Client Logo</h6>
                     </th>
 
@@ -65,19 +68,24 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% clients.forEach(function(client, index) { %>
+                  <% testimonials.forEach(function(testimonial, index) { %>
                   <tr>
                     <td class="border-bottom-0">
                       <h6 class="fw-semibold mb-0"><%= index + 1 %></h6>
                     </td>
                     <td class="border-bottom-0">
-                      <h6 class="fw-semibold mb-1"><%= client.name %></h6>
+                      <h6 class="fw-semibold mb-1"><%= testimonial.name %></h6>
+                    </td>
+                    <td class="border-bottom-0">
+                      <h6 class="fw-semibold mb-1">
+                        <%= testimonial.review %>
+                      </h6>
                     </td>
                     <td class="border-bottom-0">
                       <p class="mb-0 fw-normal">
                         <a href=""
                           ><img
-                            src="/uploads/<%= client.logo[0] %>"
+                            src="/uploads/<%= testimonial.logo[0] %>"
                             alt=""
                             width="50px"
                         /></a>
